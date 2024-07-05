@@ -1,0 +1,11 @@
+services:
+  telegram-bot:
+    environment:
+      BOT_TOKEN: ${BOT_TOKEN}
+    container_name: killer-bot
+    working_dir: /telegram_bot
+    restart: always
+    build:
+      context: .
+      dockerfile: Dockerfile
+    command: sh -c "python3 src/bot.py"
