@@ -4,7 +4,6 @@ import os
 from telegram import Update
 from telegram.ext import (
     CommandHandler,
-    CallbackQueryHandler,
     MessageHandler,
     filters,
     ApplicationBuilder,
@@ -15,18 +14,17 @@ from handlers.generate import *
 
 
 def main():
-    app = (
-        ApplicationBuilder()
-        .token(os.environ.get("BOT_TOKEN"))
-        .concurrent_updates(False)
-        .build()
-    )
+    token = os.environ.get("BOT_TOKEN")
+    if token is None:
+        print("Error: BOT_TOKEN environment variable not set.")
+        return
+
+    app = ApplicationBuilder().token(token).concurrent_updates(False).build()
+
     app.add_handler(CommandHandler("start", start))
     app.add_handler(CommandHandler("help", help_command))
+    app.add_handler(MessageHandler(filters.Document.MimeType("text/csv"), generate))
     app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, plaintext))
-    app.add_handler(MessageHandler(filters.TEXT, meaningless))
-    app.add_handler(MessageHandler(filters.Document.TEXT, generate))
-
     app.run_polling(allowed_updates=Update.ALL_TYPES)
 
 
